@@ -38,7 +38,6 @@ const run=async()=>{
   const query={_id:ObjectId(id)}
   const product=await furnitureCollection.findOne(query);
   res.send(product);
-  
 
   });
 
@@ -48,6 +47,19 @@ const run=async()=>{
     const result = await furnitureCollection.insertOne(products);
     res.send(result);
    })
+
+  //  update quantity
+
+  app.post('/updateinventory',async(req,res)=>{
+    const id=req.query.id;
+    const quantity=req.body.newQuantity;
+    console.log(quantity);
+    const filter={_id:ObjectId(id)};
+    const options = { upsert: true };
+    const updateDoc = {$set: {quantity:quantity},};
+    const result = await furnitureCollection.updateOne(filter, updateDoc, options);
+    res.send(result);
+  })
   }
   finally{
 
