@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app=express()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 app.use(cors())
@@ -23,7 +23,21 @@ const run=async()=>{
   try{
    await client.connect()
    const furnitureCollection=client.db('furnituresLink').collection('furniture')
-   
+  //  verify jwt
+  const verifyJwt=(req,res,next)=>{
+    const authHeader=req.headers.authorization;
+    if(!authHeader){
+      return res.status(401).send({message: 'unatuhrized access'});
+    }
+    const token=authHeader.split(' ')[1];
+    jwt.verify(token,process.env.ACCESS_TOKEN_SECREATE,(err,decoded)=>{
+      if(err){
+        return res.status(403).send({message: 'forbidden error'})
+      }
+      req.decoded=decoded;
+      next();
+    })
+  }
   //  get all product from db
    app.get('/furniture',async(req,res)=>{
      const query={}
@@ -40,6 +54,31 @@ const run=async()=>{
   res.send(product);
 
   });
+// get with email useing jwt
+app.get('/products',verifyJwt, async(req,res)=>{
+  const email=req.query.email;
+  const decodedEmail=req.decoded.loginEmail;
+  console.log(email, decodedEmail)
+  if(decodedEmail===email){
+    const query={email};
+    const cursor=furnitureCollection.find(query)
+    const result=await cursor.toArray()
+    res.send(result);
+  }else{
+    res.status(403).send({message: 'forbiddan access'});
+  }
+
+  
+})
+
+// jwt send token to client side
+app.post('/login',async(req,res)=>{
+  const user=req.body;
+  const accessToken=jwt.sign(user, process.env.ACCESS_TOKEN_SECREATE,{
+    expiresIn:'1d'
+  });
+  res.send({accessToken});
+})
 
   // add product
    app.post('/furniture', async(req,res)=>{
