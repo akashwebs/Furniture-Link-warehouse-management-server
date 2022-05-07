@@ -47,6 +47,13 @@ const run=async()=>{
     const result = await furnitureCollection.insertOne(products);
     res.send(result);
    })
+  //  delete products
+  app.delete('/ManageProduct/:id',async(req,res)=>{
+    const id=req.params.id;
+    const query = { _id:ObjectId(id) };
+    const result = await furnitureCollection.deleteOne(query);
+    res.send(result);
+  })
 
   //  update quantity
 
