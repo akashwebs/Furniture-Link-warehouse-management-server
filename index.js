@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app=express()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 require('dotenv').config();
 
@@ -24,12 +24,25 @@ const run=async()=>{
    await client.connect()
    const furnitureCollection=client.db('furnituresLink').collection('furniture')
    
+  //  get all product from db
    app.get('/furniture',async(req,res)=>{
-     const query=req.body;
+     const query={}
     const cursor = furnitureCollection.find(query);
     const furnitures=await cursor.toArray();
     res.send(furnitures);
    })
+
+  //  get data with id
+  app.get('/inventory/:id',async(req, res)=>{
+  const id=req.params.id
+  const query={_id:ObjectId(id)}
+  const product=await furnitureCollection.findOne(query);
+  res.send(product);
+  
+
+  });
+
+  // add product
    app.post('/furniture', async(req,res)=>{
     const products=req.body;
     const result = await furnitureCollection.insertOne(products);
