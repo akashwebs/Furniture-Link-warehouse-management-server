@@ -50,7 +50,7 @@ const run=async()=>{
 
   //  update quantity
 
-  app.post('/updateinventory',async(req,res)=>{
+  app.put('/updateinventory',async(req,res)=>{
     const id=req.query.id;
     const quantity=req.body.newQuantity;
     console.log(quantity);
