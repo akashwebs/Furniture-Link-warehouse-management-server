@@ -58,7 +58,6 @@ const run=async()=>{
 app.get('/products',verifyJwt, async(req,res)=>{
   const email=req.query.email;
   const decodedEmail=req.decoded.loginEmail;
-  console.log(email, decodedEmail)
   if(decodedEmail===email){
     const query={email};
     const cursor=furnitureCollection.find(query)
